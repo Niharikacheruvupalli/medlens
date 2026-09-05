@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "build": "node -e \"const fs=require('fs'); ['index.html','styles.css','app.js'].forEach(f => fs.copyFileSync('public/' + f, f))\""
+    "dev": "node server.js"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -54,12 +54,19 @@ function parseJsonBody(req) {
       try {
         resolve(body ? JSON.parse(body) : {});
       } catch (err) {
-        reject(err);
+        // Malformed JSON — resolve with empty object instead of rejecting.
+        // This prevents unhandled promise rejections from crashing the serverless function.
+        console.warn('[MedLens] Malformed JSON body received, defaulting to empty object:', err.message);
+        resolve({});
       }
     });
-    req.on('error', reject);
+    req.on('error', (err) => {
+      console.warn('[MedLens] Request stream error:', err.message);
+      resolve({});
+    });
   });
 }
+
 
 async function handleRequest(req, res) {
   const parsedUrl = url.parse(req.url, true);
@@ -429,7 +436,31 @@ async function handleRequest(req, res) {
       return res.end(JSON.stringify(activePatient, null, 2));
     }
 
-    // Static Files Serving
+    // ---------------------------------------------------------------
+    // Static File Serving (LOCAL DEVELOPMENT ONLY)
+    //
+    // On Vercel, static assets (index.html, styles.css, app.js) are
+    // served directly by Vercel's CDN from the /public directory.
+    // The serverless function (/api/index.js) only handles /api/* routes.
+    //
+    // If a non-API path reaches this function on Vercel, it means
+    // the CDN didn't match — return a clean 404 instead of crashing.
+    // ---------------------------------------------------------------
+
+    // Detect Vercel serverless runtime environment
+    const isVercel = !!(process.env.VERCEL || process.env.VERCEL_ENV || process.env.VERCEL_REGION || process.env.NOW_REGION);
+
+    if (isVercel) {
+      // On Vercel, non-API routes should be served by the CDN, not the function.
+      // Return a structured 404 instead of crashing with a filesystem error.
+      return sendJson(res, 404, {
+        success: false,
+        error: 'Route not found.',
+        hint: 'This serverless function only handles /api/* routes. Static assets are served by the CDN.'
+      });
+    }
+
+    // Local development: serve static files from /public directory
     let filePath = path.join(PUBLIC_DIR, pathname === '/' ? 'index.html' : pathname);
 
     // Prevent directory traversal
@@ -438,8 +469,8 @@ async function handleRequest(req, res) {
       return res.end('Access Denied');
     }
 
-    fs.stat(filePath, (err, stats) => {
-      if (err || !stats.isFile()) {
+    fs.stat(filePath, (statErr, stats) => {
+      if (statErr || !stats || !stats.isFile()) {
         // Fallback to index.html for SPA routing
         filePath = path.join(PUBLIC_DIR, 'index.html');
       }
@@ -450,7 +481,7 @@ async function handleRequest(req, res) {
       fs.readFile(filePath, (readErr, content) => {
         if (readErr) {
           res.writeHead(500, { 'Content-Type': 'text/plain' });
-          return res.end('Internal Server Error');
+          return res.end('Internal Server Error: Could not read static file.');
         }
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(content);
