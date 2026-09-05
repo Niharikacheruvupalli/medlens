@@ -1,5 +1,5 @@
 ﻿/**
- * MEDLENS FRONTEND APPLICATION CONTROLLER
+ * MEDLENS FRONTEND APPLICATION CONTROLLER — REFINED
  * "See the record. Understand the evidence."
  */
 
@@ -11,7 +11,7 @@ let state = {
   activeConflict: null
 };
 
-// Initialize Application on DOM Ready
+// Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
   fetchPatientData();
 });
@@ -46,11 +46,22 @@ function switchView(viewName) {
     if (el) el.style.display = (v === viewName) ? 'block' : 'none';
   });
 
-  // Update navbar active state
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById(`nav-${viewName}`);
-  if (activeBtn) activeBtn.classList.add('active');
+  // Update sidebar active item
+  document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => btn.classList.remove('active'));
+  
+  if (viewName === 'dashboard') {
+    const btn = document.getElementById('side-overview');
+    if (btn) btn.classList.add('active');
+  } else if (viewName === 'timeline') {
+    const btn = document.getElementById('side-timeline');
+    if (btn) btn.classList.add('active');
+  } else if (viewName === 'compare') {
+    const btn = document.getElementById('side-compare');
+    if (btn) btn.classList.add('active');
+  }
 
+  // Close mobile sidebar if open
+  toggleSidebar(false);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -59,7 +70,57 @@ function scrollToSection(sectionId) {
   setTimeout(() => {
     const el = document.getElementById(sectionId);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+    
+    // Highlight active sidebar item
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => btn.classList.remove('active'));
+    if (sectionId === 'records-section') {
+      const b = document.getElementById('side-records');
+      if (b) b.classList.add('active');
+    } else if (sectionId === 'conflict-radar-container') {
+      const b = document.getElementById('side-conflicts');
+      if (b) b.classList.add('active');
+    } else if (sectionId === 'clarification-container') {
+      const b = document.getElementById('side-clarifications');
+      if (b) b.classList.add('active');
+    }
+  }, 120);
+}
+
+function toggleSidebar(forceOpen) {
+  const sidebar = document.getElementById('app-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  if (!sidebar) return;
+
+  if (forceOpen === true) {
+    sidebar.classList.add('mobile-open');
+    if (backdrop) backdrop.classList.add('mobile-open');
+  } else if (forceOpen === false) {
+    sidebar.classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.remove('mobile-open');
+  } else {
+    sidebar.classList.toggle('mobile-open');
+    if (backdrop) backdrop.classList.toggle('mobile-open');
+  }
+}
+
+function openSettingsModal() {
+  const m = document.getElementById('settings-modal-backdrop');
+  if (m) m.classList.add('open');
+}
+
+function closeSettingsModal() {
+  const m = document.getElementById('settings-modal-backdrop');
+  if (m) m.classList.remove('open');
+}
+
+function openProfileModal() {
+  const m = document.getElementById('profile-modal-backdrop');
+  if (m) m.classList.add('open');
+}
+
+function closeProfileModal() {
+  const m = document.getElementById('profile-modal-backdrop');
+  if (m) m.classList.remove('open');
 }
 
 function renderOverview() {
@@ -121,15 +182,21 @@ function renderOverview() {
 }
 function renderConflictRadar() {
   const container = document.getElementById('conflict-radar-container');
+  const sideBadge = document.getElementById('side-conflict-badge');
   if (!container) return;
 
   const conflicts = (state.patient.conflicts || []).filter(c => !c.resolved);
+  if (sideBadge) {
+    sideBadge.textContent = conflicts.length;
+    sideBadge.style.display = conflicts.length > 0 ? 'inline-block' : 'none';
+  }
+
   if (conflicts.length === 0) {
     container.innerHTML = '';
     return;
   }
 
-  const c = conflicts[0]; // Active conflict
+  const c = conflicts[0];
   state.activeConflict = c;
 
   container.innerHTML = `
@@ -140,10 +207,10 @@ function renderConflictRadar() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </div>
           <div>
-            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #99551B; letter-spacing: 0.5px;">
+            <div style="font-size: 10.5px; text-transform: uppercase; font-weight: 800; color: #99551B; letter-spacing: 0.6px;">
               CONFLICT RADAR • SIGNATURE FEATURE
             </div>
-            <h4 style="font-size: 16px; font-weight: 750; color: var(--text-main);">${c.title}</h4>
+            <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main);">${c.title}</h4>
           </div>
         </div>
         <span class="badge status-conflict">${c.status}</span>
@@ -195,6 +262,7 @@ function renderAISummary() {
 function renderClarifications() {
   const container = document.getElementById('clarification-questions-list');
   const countBadge = document.getElementById('clarif-pending-count');
+  const sideClarifBadge = document.getElementById('side-clarif-badge');
   if (!container) return;
 
   const questions = state.patient.clarificationQuestions || [];
@@ -203,6 +271,11 @@ function renderClarifications() {
   if (countBadge) {
     countBadge.textContent = pending.length > 0 ? `${pending.length} Questions Requiring Input` : 'All Clarified ✓';
     countBadge.className = pending.length > 0 ? 'badge status-conflict' : 'badge status-verified';
+  }
+
+  if (sideClarifBadge) {
+    sideClarifBadge.textContent = pending.length;
+    sideClarifBadge.style.display = pending.length > 0 ? 'inline-block' : 'none';
   }
 
   if (questions.length === 0) {
@@ -223,7 +296,7 @@ function renderClarifications() {
         </div>
 
         ${isAnswered ? `
-          <div style="background: var(--card-bg); border-left: 3px solid var(--primary-sage-deep); padding: 8px 12px; font-size: 13px; color: var(--text-main);">
+          <div style="background: #FFFFFF; border-left: 3px solid var(--sidebar-green); padding: 8px 12px; font-size: 13px; color: var(--text-main); border-radius: 4px;">
             <strong>Patient Clarification:</strong> "${q.answer}"
           </div>
         ` : `
@@ -312,7 +385,7 @@ function renderLabResults() {
           <span class="badge ${statusBadgeClass}">${item.displayStatus}</span>
         </td>
         <td>
-          <div style="font-size: 12px; font-weight: 500;">${item.sourceDocument}</div>
+          <div style="font-size: 12px; font-weight: 600;">${item.sourceDocument}</div>
           <span style="font-size: 11px; color: var(--text-light);">${item.page || 'Page 1'}</span>
         </td>
         <td>
@@ -368,7 +441,7 @@ function openEvidenceLens(itemId) {
     <!-- Source Origin & Provenance -->
     <div class="evidence-field-box">
       <div class="evidence-field-label">Document Provenance</div>
-      <div style="font-size: 14px; font-weight: 650; color: var(--text-main); margin-bottom: 2px;">
+      <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">
         📄 ${item.sourceDocument}
       </div>
       <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
@@ -383,7 +456,7 @@ function openEvidenceLens(itemId) {
     <!-- Reported Reference Range -->
     <div class="evidence-field-box">
       <div class="evidence-field-label">Source-Reported Reference Range</div>
-      <div style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+      <div style="font-size: 15px; font-weight: 750; color: var(--text-main); margin-bottom: 4px;">
         ${item.referenceRange}
       </div>
       <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
@@ -391,7 +464,7 @@ function openEvidenceLens(itemId) {
       </p>
     </div>
 
-    <!-- AI Model Confidence & Reasoning -->
+    <!-- Extraction Confidence -->
     <div class="evidence-field-box">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
         <div class="evidence-field-label" style="margin-bottom: 0;">Extraction Confidence</div>
@@ -427,7 +500,6 @@ function openEvidenceLens(itemId) {
 }
 
 function openSignatureEvidenceDemo() {
-  // Opens hemoglobin by default for quick demo inspection
   const hb = (state.patient.labResults || []).find(r => r.testName.toLowerCase().includes('hemoglobin')) || state.patient.labResults[0];
   if (hb) openEvidenceLens(hb.id);
 }
@@ -568,7 +640,7 @@ function renderTimeline() {
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
           <div>
             <div class="timeline-date">${ev.year} • ${ev.date}</div>
-            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-main);">${ev.title}</h4>
+            <h4 style="font-size: 15px; font-weight: 750; color: var(--sage-deep);">${ev.title}</h4>
           </div>
           <span class="badge badge-sage">${ev.badge || ev.category}</span>
         </div>
@@ -612,7 +684,7 @@ function renderComparison() {
 
       rows.push(`
         <tr>
-          <td><strong style="color: var(--text-main);">${cur.testName}</strong></td>
+          <td><strong style="color: var(--sage-deep);">${cur.testName}</strong></td>
           <td>${prev.value} ${prev.unit}</td>
           <td><strong style="color: var(--text-main);">${cur.value} ${cur.unit}</strong></td>
           <td><span class="delta-badge ${deltaBadgeClass}">${deltaStr} ${cur.unit}</span></td>
@@ -678,7 +750,6 @@ async function handleIntakeSubmit(event) {
 
   runProcessingAnimation(async () => {
     try {
-      // 1. Submit Intake
       const intakeRes = await fetch('/api/intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -687,7 +758,6 @@ async function handleIntakeSubmit(event) {
       const intakeData = await intakeRes.json();
       state.patient = intakeData.patient;
 
-      // 2. Analyze Report
       if (reportText.trim()) {
         const analyzeRes = await fetch('/api/analyze', {
           method: 'POST',
@@ -718,7 +788,6 @@ function runProcessingAnimation(onComplete) {
   modal.classList.add('open');
   const steps = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-  // Reset steps
   steps.forEach(s => {
     const el = document.getElementById(`pstep-${s}`);
     if (el) { el.className = 'processing-step'; }
@@ -738,14 +807,14 @@ function runProcessingAnimation(onComplete) {
 
       if (bar) bar.style.width = `${Math.round(((currentStep + 1) / steps.length) * 100)}%`;
       currentStep++;
-      setTimeout(nextStep, 140);
+      setTimeout(nextStep, 130);
     } else {
       const lastEl = document.getElementById(`pstep-9`);
       if (lastEl) lastEl.className = 'processing-step done';
       setTimeout(() => {
         modal.classList.remove('open');
         if (onComplete) onComplete();
-      }, 250);
+      }, 200);
     }
   }
 
