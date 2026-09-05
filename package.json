@@ -1,0 +1,9 @@
+﻿{
+  "name": "medlens",
+  "version": "1.0.0",
+  "description": "MedLens - See the record. Understand the evidence.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
