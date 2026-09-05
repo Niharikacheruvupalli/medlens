@@ -1,4 +1,4 @@
-﻿const http = require('http');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
@@ -40,6 +40,14 @@ function sendJson(res, statusCode, data) {
 
 function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
+    if (req.body) {
+      if (typeof req.body === 'object') return resolve(req.body);
+      try {
+        return resolve(JSON.parse(req.body));
+      } catch (e) {
+        return resolve({});
+      }
+    }
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
@@ -53,9 +61,14 @@ function parseJsonBody(req) {
   });
 }
 
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
+  let pathname = parsedUrl.pathname;
+  if (parsedUrl.query && parsedUrl.query.path) {
+    pathname = '/api/' + String(parsedUrl.query.path).replace(/^\//, '');
+  } else if (req.headers && req.headers['x-matched-path']) {
+    pathname = req.headers['x-matched-path'];
+  }
   const method = req.method;
 
   // Handle CORS preflight
@@ -452,12 +465,22 @@ const server = http.createServer(async (req, res) => {
       details: apiErr.message
     });
   }
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`  MEDLENS CLINICAL INTELLIGENCE SERVER ACTIVE`);
-  console.log(`  Tagline: "See the record. Understand the evidence."`);
-  console.log(`  Listening on: http://localhost:${PORT}`);
-  console.log(`====================================================`);
-});
+const server = http.createServer(handleRequest);
+
+// Only listen if executed directly
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(`  MEDLENS CLINICAL INTELLIGENCE SERVER ACTIVE`);
+    console.log(`  Tagline: "See the record. Understand the evidence."`);
+    console.log(`  Listening on: http://localhost:${PORT}`);
+    console.log(`====================================================`);
+  });
+}
+
+module.exports = {
+  server,
+  handleRequest
+};

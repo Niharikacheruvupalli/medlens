@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedLens — See the record. Understand the evidence.</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2330452F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'></circle><line x1='21' y1='21' x2='16.65' y2='16.65'></line><path d='M11 8v6'></path><path d='M8 11h6'></path></svg>">
+</head>
+<body>
+
+  <!-- App Master Layout -->
+  <div class="app-container">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- PERMANENT LEFT SIDEBAR (BRIGHT BOTANICAL SAGE #A8C96F) -->
+    <aside class="sidebar" id="app-sidebar" aria-label="Main Sidebar Navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-brand" onclick="switchView('landing')">
+          <div class="sidebar-logo-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <div class="sidebar-brand-title">MEDLENS</div>
+            <div class="sidebar-brand-tagline">See the record. Understand the evidence.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Main Navigation Links -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-title">Clinical Navigation</div>
+
+        <button class="nav-item active" id="side-overview" onclick="switchView('dashboard')">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">Overview</span>
+        </button>
+
+        <button class="nav-item" id="side-records" onclick="scrollToSection('records-section')">
+          <span class="nav-icon">📄</span>
+          <span class="nav-label">Patient Records</span>
+        </button>
+
+        <button class="nav-item" id="side-evidence" onclick="openSignatureEvidenceDemo()">
+          <span class="nav-icon">🔍</span>
+          <span class="nav-label">Evidence Lens</span>
+        </button>
+
+        <button class="nav-item" id="side-conflicts" onclick="scrollToSection('conflict-radar-container')">
+          <span class="nav-icon">⚠</span>
+          <span class="nav-label">Conflict Radar</span>
+          <span class="side-badge" id="side-conflict-badge">1</span>
+        </button>
+
+        <button class="nav-item" id="side-clarifications" onclick="scrollToSection('clarification-container')">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">Clarifications</span>
+          <span class="side-badge" id="side-clarif-badge">3</span>
+        </button>
+
+        <button class="nav-item" id="side-timeline" onclick="switchView('timeline')">
+          <span class="nav-icon">🕐</span>
+          <span class="nav-label">Timeline</span>
+        </button>
+
+        <button class="nav-item" id="side-compare" onclick="switchView('compare')">
+          <span class="nav-icon">⇄</span>
+          <span class="nav-label">Compare Reports</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Sidebar Footer (Settings & Profile) -->
+      <div class="sidebar-footer">
+        <button class="nav-item" id="side-settings" onclick="openSettingsModal()">
+          <span class="nav-icon">⚙</span>
+          <span class="nav-label">Settings</span>
+        </button>
+
+        <div class="sidebar-user-card" id="side-profile" onclick="openProfileModal()">
+          <div class="user-avatar">AS</div>
+          <div class="user-info">
+            <div class="user-name">Aarav Sharma</div>
+            <div class="user-role">Patient • 42M</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN APPLICATION AREA -->
+    <div class="main-area">
+
+      <!-- Top Contextual Bar -->
+      <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-menu-btn" onclick="toggleSidebar(true)" aria-label="Open sidebar menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+
+          <div class="topbar-context">
+            <span class="context-dot"></span>
+            <span class="context-text">Active Record: <strong>Aarav Sharma (42M)</strong></span>
+            <span class="badge badge-sage">Verified Intelligence</span>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="btn btn-secondary btn-sm" onclick="loadFictionalDemo()" title="Load full Aarav Sharma evaluation data">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 16h5v5"></path></svg>
+            Explore Demo
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="switchView('intake')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Intake
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="exportPatientRecord()" title="Download structured record JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export
+          </button>
+        </div>
+      </header>
+
+      <!-- Non-Diagnostic Disclaimer Bar -->
+      <div class="disclaimer-bar" role="alert">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span><strong>Non-Diagnostic System:</strong> MedLens organizes and summarizes supplied medical information. It does not provide diagnosis or treatment recommendations.</span>
+      </div>
+
+      <!-- Main Scrollable Content Area -->
+      <div class="page-content-wrapper">
+        <!-- VIEW 1: LANDING PAGE -->
+        <main id="view-landing" style="display: none;">
+          <section class="hero-section">
+            <div class="hero-backdrop-shape-1"></div>
+            <div class="hero-backdrop-shape-2"></div>
+
+            <div class="hero-inner">
+              <div>
+                <div class="hero-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                  Evidence-First Clinical Intelligence
+                </div>
+
+                <h1 class="hero-title">
+                  Your medical records,<br>transformed into <span class="clarity-word">clarity</span>.
+                </h1>
+
+                <p class="hero-subtitle">
+                  MedLens unites fragmented medical files, validates terminology, cross-references source reference ranges, and reveals the exact evidence behind every result.
+                </p>
+
+                <div class="hero-ctas">
+                  <button class="btn btn-primary" onclick="switchView('intake')">
+                    Create Patient Record
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                  <button class="btn btn-secondary" onclick="loadFictionalDemo()">
+                    Explore Demo (Aarav Sharma, 42)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Medical Intelligence Lens Visualizer with Translucent Rings -->
+              <div class="hero-visual-card">
+                <div class="lens-rings-wrapper">
+                  <div class="lens-ring-outer"></div>
+                  <div class="lens-ring-middle"></div>
+                  <div class="lens-ring-center">
+                    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </div>
+                </div>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--sage-deep); margin-bottom: 4px;">The Evidence Layer</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Every test is bound to its origin file, page, and reported reference range.</p>
+              </div>
+            </div>
+
+            <!-- Transformation Flow -->
+            <div class="transformation-container">
+              <div class="transform-grid">
+                <div class="transform-card">
+                  <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Scattered Records</h4>
+                  <p>PDF reports, prescriptions, notes, and disparate files with fragmented metrics.</p>
+                </div>
+                <div class="transform-arrow">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </div>
+                <div class="transform-card">
+                  <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> AI Organization</h4>
+                  <p>Extraction, validation, terminology normalization, reference range checks, and conflict radar.</p>
+                </div>
+                <div class="transform-arrow">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </div>
+                <div class="transform-card" style="background-color: var(--sage-pale); border-color: var(--sidebar-green);">
+                  <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 12 2 2 4-4"></path><circle cx="12" cy="12" r="10"></circle></svg> Structured Record</h4>
+                  <p>Traceable, evidence-backed, human-verified health intelligence with zero fabricated ranges.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Why MedLens Section -->
+            <div style="margin-top: 36px;">
+              <h2 style="font-size: 24px; font-weight: 800; color: var(--sage-deep); text-align: center; margin-bottom: 6px;">Why MedLens?</h2>
+              <p style="font-size: 13.5px; color: var(--text-muted); text-align: center; max-width: 500px; margin: 0 auto 20px;">An evidence-first system crafted for reassurance, clarity, and patient empowerment.</p>
+              
+              <div class="why-grid">
+                <div class="why-card">
+                  <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5 A 2.5 2.5 0 0 1 6.5 17 H 20"></path><path d="M6.5 2 H 20 v 20 H 6.5 A 2.5 2.5 0 0 1 4 19.5 v -15 A 2.5 2.5 0 0 1 6.5 2 z"></path></svg></div>
+                  <h4>Fragmented Records → One View</h4>
+                  <p>Consolidate your symptoms, historical clinic notes, and diagnostic reports into a coherent, organized patient profile.</p>
+                </div>
+                <div class="why-card">
+                  <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+                  <h4>Hidden Sources → Evidence Lens</h4>
+                  <p>Every extracted lab value links directly back to its source document, page, and verbatim sentence. Never invent evidence.</p>
+                </div>
+                <div class="why-card">
+                  <div class="why-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
+                  <h4>Conflicting Records → Conflict Radar</h4>
+                  <p>Detect contradictions between patient statements and historical documents calmly without automated guesswork.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <!-- VIEW 2: PATIENT INTAKE -->
+        <main id="view-intake" class="intake-container" style="display: none;">
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px;">
+              <div>
+                <h2 style="font-size: 22px; font-weight: 800; color: var(--sage-deep);">Patient Intake & Document Submission</h2>
+                <p style="font-size: 13px; color: var(--text-muted);">Please provide patient details and attach report documents to organize.</p>
+              </div>
+              <span class="badge badge-provenance">Provided by you</span>
+            </div>
+
+            <form id="intake-form" onsubmit="handleIntakeSubmit(event)">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="intake-name">Patient Name or Identifier *</label>
+                  <input type="text" id="intake-name" class="form-control" placeholder="e.g., Aarav Sharma" required value="Aarav Sharma">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="intake-age">Age *</label>
+                  <input type="number" id="intake-age" class="form-control" placeholder="e.g., 42" required value="42">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="intake-sex">Biological Sex *</label>
+                  <select id="intake-sex" class="form-control">
+                    <option value="Male" selected>Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other / Prefer not to say">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="intake-symptoms">Symptoms & Health Concerns</label>
+                <div class="form-hint">Separate symptoms with commas (e.g., Fatigue, Headache)</div>
+                <input type="text" id="intake-symptoms" class="form-control" placeholder="e.g., Fatigue, Headache" value="Fatigue, Headache">
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label class="form-label" for="intake-conditions">Existing Conditions</label>
+                  <input type="text" id="intake-conditions" class="form-control" placeholder="e.g., Essential Hypertension" value="Essential Hypertension (2023)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="intake-allergies">Known Allergies</label>
+                  <input type="text" id="intake-allergies" class="form-control" placeholder="e.g., No known allergies" value="No known allergies">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="intake-medications">Current Medications & Dosages</label>
+                <input type="text" id="intake-medications" class="form-control" placeholder="e.g., Medication A (Lisinopril 10mg once daily)" value="Medication A (Lisinopril 10mg once daily)">
+              </div>
+
+              <!-- Document Section -->
+              <div style="margin-top: 28px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                <div style="margin-bottom: 16px;">
+                  <h3 style="font-size: 16px; font-weight: 750; color: var(--sage-deep); margin-bottom: 3px;">Upload Medical Report</h3>
+                  <p style="font-size: 12.5px; color: var(--text-muted); margin: 0;">Attach a PDF or image, or paste laboratory text for extraction</p>
+                </div>
+
+                <!-- Functional File Upload Dropzone / Button -->
+                <div class="file-upload-dropzone" id="file-upload-dropzone" onclick="document.getElementById('report-file-input').click()" title="Click or drag file here to attach document">
+                  <input type="file" id="report-file-input" accept=".pdf,.png,.jpg,.jpeg,.txt" style="display: none;" onchange="handleFileUpload(event)">
+
+                  <!-- Idle Prompt -->
+                  <div id="dropzone-prompt" class="upload-dropzone-content">
+                    <div class="upload-icon-circle">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div style="font-size: 14px; font-weight: 700; color: var(--sage-deep); display: flex; align-items: center; gap: 8px;">
+                        <span>Choose PDF / Image</span>
+                        <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">or drag and drop document here</span>
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
+                        Supports PDF, PNG, JPG, JPEG, and TXT laboratory documents (up to 15MB)
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Attached File Card (Appears upon file selection) -->
+                  <div id="attached-file-card" class="attached-file-card" style="display: none;" onclick="event.stopPropagation();">
+                    <div class="attached-file-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                    </div>
+                    <div class="attached-file-details">
+                      <div id="attached-file-name" class="attached-file-name">filename.pdf</div>
+                      <div class="attached-file-meta">
+                        <span id="attached-file-type" style="font-size: 11.5px; color: var(--text-muted);">PDF Document</span>
+                        <span style="color: var(--border-medium);">•</span>
+                        <span id="attached-file-size" style="font-size: 11.5px; color: var(--text-muted);">142 KB</span>
+                        <span style="color: var(--border-medium);">•</span>
+                        <span style="font-size: 11.5px; color: var(--status-verified-text); font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          Ready for Extraction
+                        </span>
+                      </div>
+                    </div>
+                    <button type="button" class="btn-remove-file" onclick="clearUploadedFile(event)" title="Remove attached file">
+                      ✕ Remove
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Friendly Status Banner -->
+                <div id="file-upload-status" style="display: none; margin-top: 10px; font-size: 12.5px; padding: 8px 14px; border-radius: var(--radius-sm);"></div>
+
+                <!-- Centered OR Divider -->
+                <div style="display: flex; align-items: center; margin: 18px 0; gap: 14px;">
+                  <div style="flex: 1; height: 1px; background-color: var(--border-subtle);"></div>
+                  <span style="font-size: 11px; font-weight: 750; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; background: rgba(234, 243, 221, 0.6); border: 1px solid var(--border-subtle); padding: 3px 10px; border-radius: 12px;">OR</span>
+                  <div style="flex: 1; height: 1px; background-color: var(--border-subtle);"></div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="report-doc-name">Document Title / File Name</label>
+                  <input type="text" id="report-doc-name" class="form-control" value="Blood_Report_2026.pdf" placeholder="e.g., Blood_Report_March_2026.pdf">
+                </div>
+
+                <div class="form-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label class="form-label" for="report-raw-text" style="margin-bottom: 0;">Report Content / Pasted Text *</label>
+                    <span style="font-size: 11.5px; color: var(--text-muted);">Tabular or unstructured laboratory text</span>
+                  </div>
+                  <div class="form-hint" style="margin-bottom: 8px;">MedLens extracts tests, numerical values, units, and reported reference ranges verbatim.</div>
+                  <textarea id="report-raw-text" class="form-control" rows="8" placeholder="Paste laboratory investigation results here or choose a file above...">Hemoglobin                     10.2             g/dL        13.0 - 17.0
+White Blood Cell Count (WBC)   8,100            /mcL        4,000 - 11,000
+Platelet Count                 240,000          /mcL        150,000 - 450,000
+Fasting Blood Glucose          118              mg/dL       70 - 99
+Serum Creatinine               0.95             mg/dL       0.70 - 1.30
+Total Cholesterol              210              mg/dL       Ref range not stated</textarea>
+
+                  <!-- Sample Reports Buttons Directly Below Textarea -->
+                  <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="populateSampleReport('cbc_report')" title="Load realistic Complete Blood Count with demographics">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                      Sample CBC
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="populateSampleReport('metabolic_report')" title="Load realistic Comprehensive Metabolic Panel with demographics">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                      Sample CMP
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="populateSampleReport('lipid_unspecified_range')" title="Load test where reference range is omitted in source">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                      Missing Reference Range Test
+                    </button>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px;">
+                  <input type="checkbox" id="is-previous-doc">
+                  <label for="is-previous-doc" style="font-size: 13px; color: var(--text-main); cursor: pointer;">
+                    This is a <strong>Previous / Historical Report</strong> (for longitudinal trend comparison)
+                  </label>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                <button type="button" class="btn btn-secondary" onclick="switchView('dashboard')">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="btn-submit-intake">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                  Analyze Information
+                </button>
+              </div>
+            </form>
+          </div>
+        </main>
+        <!-- VIEW 3: MAIN DASHBOARD -->
+        <main id="view-dashboard">
+          <!-- Greeting Header -->
+          <div style="margin-bottom: 24px;">
+            <h1 id="patient-greeting" style="font-size: 26px; font-weight: 800; letter-spacing: -0.6px; color: var(--sage-deep); margin-bottom: 4px;">Good morning, Aarav.</h1>
+            <p style="font-size: 13.5px; color: var(--text-muted);">Here is your clinical information organized, validated, and linked to evidence.</p>
+          </div>
+
+          <!-- 1. Patient Snapshot Card in Fresh Pale Green (#EAF3DD) -->
+          <div class="patient-overview-card">
+            <div class="patient-info-header">
+              <div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--sage-deep);" id="profile-name">Aarav Sharma</h3>
+                <p style="font-size: 12px; color: var(--text-muted);" id="profile-meta">Age: 42 • Male • Intake Date: 2026-03-04</p>
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <span class="badge badge-provenance">User Provided</span>
+                <span class="badge badge-sage">Verified Record</span>
+              </div>
+            </div>
+
+            <div class="patient-profile-data">
+              <div class="data-group">
+                <h5>Reported Symptoms</h5>
+                <div class="tag-list" id="profile-symptoms-list"></div>
+              </div>
+              <div class="data-group">
+                <h5>Known Conditions</h5>
+                <div class="tag-list" id="profile-conditions-list"></div>
+              </div>
+              <div class="data-group">
+                <h5>Active Medications</h5>
+                <div class="tag-list" id="profile-meds-list"></div>
+              </div>
+              <div class="data-group">
+                <h5>Documented Allergies</h5>
+                <div class="tag-list" id="profile-allergies-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Conflict Radar Card (Signature Feature) -->
+          <div id="conflict-radar-container"></div>
+
+          <!-- 3. AI Summary Card ("Your Record, Simplified") -->
+          <div class="summary-card" id="ai-summary-card">
+            <div class="summary-header">
+              <div class="summary-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                Your Record, Simplified
+              </div>
+              <span class="badge badge-sage">AI Organized • Evidence Linked</span>
+            </div>
+            <p class="summary-paragraph" id="summary-paragraph-text">Loading organized summary...</p>
+            <div class="summary-highlights" id="summary-highlights-list"></div>
+            <div class="summary-disclaimer">
+              AI-generated summary — verify against source records. MedLens organizes and summarizes supplied medical information. It does not provide diagnosis or treatment recommendations.
+            </div>
+          </div>
+
+          <!-- 4. Clarification Engine Box -->
+          <div class="clarification-box" id="clarification-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--sage-deep); display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  Clarification Questions
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Context-aware questions generated to clarify missing timeframes or test preparation details before clinical review.</p>
+              </div>
+              <span class="badge badge-sage" id="clarif-pending-count">Pending</span>
+            </div>
+            <div class="clarif-list" id="clarification-questions-list"></div>
+          </div>
+
+          <!-- 5. Laboratory Results Table with Reference Range Intelligence -->
+          <div class="table-card" id="records-section">
+            <div class="table-header-wrap">
+              <div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--sage-deep); display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  Laboratory Results & Reference Range Intelligence
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Strictly evaluated against source-provided reference ranges. Never fabricated.</p>
+              </div>
+
+              <div class="table-filter-bar">
+                <button class="filter-btn active" onclick="filterLabResults('ALL', this)">All Results</button>
+                <button class="filter-btn" onclick="filterLabResults('OUTSIDE', this)">Outside Reported Range</button>
+                <button class="filter-btn" onclick="filterLabResults('NORMAL', this)">Within Range</button>
+                <button class="filter-btn" onclick="filterLabResults('UNKNOWN', this)">Range Unavailable</button>
+                <button class="filter-btn" onclick="filterLabResults('UNVERIFIED', this)">Needs Verification</button>
+              </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table class="med-table" aria-label="Extracted Laboratory Parameters">
+                <thead>
+                  <tr>
+                    <th>Test Investigation</th>
+                    <th>Observed Value</th>
+                    <th>Reported Range</th>
+                    <th>Range Status</th>
+                    <th>Source & Page</th>
+                    <th>Confidence</th>
+                    <th>Verification</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="lab-results-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+
+        <!-- VIEW 4: MEDICAL TIMELINE -->
+        <main id="view-timeline" style="display: none;">
+          <div class="card" style="margin-bottom: 24px;">
+            <h2 style="font-size: 22px; font-weight: 800; color: var(--sage-deep); margin-bottom: 4px;">Chronological Medical Timeline</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">Traceable medical history organized across laboratory records, prescriptions, and intake entries.</p>
+          </div>
+          <div class="timeline-tree" id="timeline-tree-container"></div>
+        </main>
+
+        <!-- VIEW 5: LONGITUDINAL REPORT COMPARISON -->
+        <main id="view-compare" style="display: none;">
+          <div class="card" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h2 style="font-size: 22px; font-weight: 800; color: var(--sage-deep); margin-bottom: 4px;">Longitudinal Report Comparison</h2>
+                <p style="font-size: 13px; color: var(--text-muted);">Structured parameter comparison between Current Report and Previous Baseline. Grounded strictly in extracted data.</p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <span class="badge badge-sage">Current: Blood_Report_2026.pdf</span>
+                <span class="badge badge-provenance">Previous: Previous_CBC_2024.pdf</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table class="med-table" aria-label="Longitudinal Comparison Table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Previous (Feb 2024)</th>
+                  <th>Current (Mar 2026)</th>
+                  <th>Change / Delta</th>
+                  <th>Previous Range</th>
+                  <th>Current Range</th>
+                  <th>Status Shift</th>
+                  <th style="text-align: right;">Evidence</th>
+                </tr>
+              </thead>
+              <tbody id="comparison-tbody"></tbody>
+            </table>
+          </div>
+        </main>
+
+      </div> <!-- End page-content-wrapper -->
+    </div> <!-- End main-area -->
+  </div> <!-- End app-container -->
+
+  <!-- SIGNATURE COMPONENT: EVIDENCE LENS DRAWER -->
+  <div class="drawer-backdrop" id="evidence-drawer-backdrop" onclick="handleDrawerBackdropClick(event)">
+    <aside class="evidence-drawer" role="dialog" aria-modal="true" aria-labelledby="lens-drawer-title">
+      <div class="drawer-header">
+        <div class="drawer-title-box">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+            <span class="badge badge-sage" style="font-size: 10px;">SIGNATURE FEATURE</span>
+            <span class="badge badge-provenance" id="lens-source-type-badge">Document Source</span>
+          </div>
+          <h3 id="lens-drawer-title">Evidence Lens</h3>
+          <p>Traceable evidence and justification from source document</p>
+        </div>
+        <button class="close-btn" onclick="closeEvidenceLens()" aria-label="Close Evidence Lens">&times;</button>
+      </div>
+      <div class="drawer-body" id="lens-drawer-body"></div>
+      <div class="drawer-actions" id="lens-drawer-actions"></div>
+    </aside>
+  </div>
+
+  <!-- CONFLICT REVIEW MODAL -->
+  <div class="processing-modal-backdrop" id="conflict-modal-backdrop">
+    <div class="processing-modal-card" style="max-width: 580px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--sage-deep); display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#99551B" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Conflict Radar — Review Contradiction
+        </h3>
+        <button class="close-btn" onclick="closeConflictModal()">&times;</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        MedLens detected a contradiction between two sources. <strong>MedLens never decides which is correct.</strong> Please select the appropriate clinical resolution or provide clarification.
+      </p>
+
+      <div class="conflict-sources-grid" style="margin-bottom: 16px;">
+        <div class="source-col">
+          <h5>Source A: Patient Intake</h5>
+          <div class="source-val" id="conflict-modal-srcA-val">No known allergies</div>
+          <div class="source-meta" id="conflict-modal-srcA-meta">Self-reported intake form (2026-03-04)</div>
+        </div>
+        <div class="source-col">
+          <h5>Source B: Previous Record</h5>
+          <div class="source-val" id="conflict-modal-srcB-val">Penicillin allergy documented</div>
+          <div class="source-meta" id="conflict-modal-srcB-meta">Clinic_Summary_2025.pdf (Dr. Mehra)</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">How would you like to reconcile this information?</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+            <input type="radio" name="conflict-choice" value="choose_previous" checked>
+            <span><strong>Keep Previous Clinical Record:</strong> Confirm Penicillin allergy (document hives/rash from 2021).</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+            <input type="radio" name="conflict-choice" value="choose_intake">
+            <span><strong>Keep Current Patient Intake:</strong> Confirm "No known allergies" (previous record was in error or re-tested).</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+            <input type="radio" name="conflict-choice" value="acknowledged">
+            <span><strong>Mark as Acknowledged:</strong> Flag for discussion with attending physician during appointment.</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 14px;">
+        <label class="form-label" for="conflict-note">Clarification / Reviewer Notes (Optional)</label>
+        <input type="text" id="conflict-note" class="form-control" placeholder="e.g., Patient recalls mild rash as a child, will verify with physician.">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-secondary btn-sm" onclick="closeConflictModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="submitConflictResolution()">Save Resolution</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT / VERIFY MODAL -->
+  <div class="processing-modal-backdrop" id="edit-modal-backdrop">
+    <div class="processing-modal-card" style="max-width: 460px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--sage-deep);">Review & Edit Field</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="edit-field-label">Parameter Name</label>
+        <input type="text" id="edit-field-val" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Verification Status</label>
+        <select id="edit-field-status" class="form-control">
+          <option value="Human Verified">Human Verified</option>
+          <option value="Human Edited">Human Edited</option>
+          <option value="Needs Verification">Needs Verification</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="edit-field-notes">Reviewer Note / Justification</label>
+        <input type="text" id="edit-field-notes" class="form-control" placeholder="e.g., Verified against physical printed slip.">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-secondary btn-sm" onclick="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="saveFieldEdit()">Update Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="processing-modal-backdrop" id="settings-modal-backdrop">
+    <div class="processing-modal-card" style="max-width: 460px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--sage-deep);">System Settings</h3>
+        <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Terminology Normalization Engine</label>
+        <select class="form-control">
+          <option selected>Active (Maps aliases like Hb → Hemoglobin with original preserved)</option>
+          <option>Strict Verbatim Only</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reference Range Evaluation Mode</label>
+        <input type="text" class="form-control" value="Strict Source Reports Only (Standard Ranges Prohibited)" disabled style="background: var(--bg-warm);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Export Schema</label>
+        <select class="form-control">
+          <option selected>MedLens Traceable Clinical JSON v1.0</option>
+          <option>FHIR-Compatible DiagnosticObservation Bundle</option>
+        </select>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-primary btn-sm" onclick="closeSettingsModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="processing-modal-backdrop" id="profile-modal-backdrop">
+    <div class="processing-modal-card" style="max-width: 460px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--sage-deep);">Patient Profile</h3>
+        <button class="close-btn" onclick="closeProfileModal()">&times;</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--sidebar-green); color: var(--sage-deep); font-size: 18px; font-weight: 800; display: flex; align-items: center; justify-content: center;">AS</div>
+        <div>
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--text-main);">Aarav Sharma</h4>
+          <p style="font-size: 12px; color: var(--text-muted);">Patient ID: #MEDLENS-AARAV-42 • Male • 42 yrs</p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Primary Care Provider</label>
+        <input type="text" class="form-control" value="Dr. Ananya Mehra, MD (Internal Medicine)" disabled style="background: var(--bg-warm);">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Active Pathology Lab</label>
+        <input type="text" class="form-control" value="Apex Diagnostic Pathology Labs" disabled style="background: var(--bg-warm);">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button class="btn btn-primary btn-sm" onclick="closeProfileModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI PROCESSING ANIMATION MODAL -->
+  <div class="processing-modal-backdrop" id="processing-modal">
+    <div class="processing-modal-card">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--sage-pale); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: var(--sage-deep);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+        </svg>
+      </div>
+      <h3 style="font-size: 20px; font-weight: 800; color: var(--sage-deep); margin-bottom: 4px;">Organizing your information</h3>
+      <p style="font-size: 13px; color: var(--text-muted);">Carefully reading documents, checking source ranges, and structuring your record...</p>
+
+      <div class="processing-steps-list">
+        <div class="processing-step" id="pstep-1"><span class="step-circle">1</span> Reading documents</div>
+        <div class="processing-step" id="pstep-2"><span class="step-circle">2</span> Extracting information</div>
+        <div class="processing-step" id="pstep-3"><span class="step-circle">3</span> Validating extracted fields</div>
+        <div class="processing-step" id="pstep-4"><span class="step-circle">4</span> Normalizing terminology (Hb = Hemoglobin)</div>
+        <div class="processing-step" id="pstep-5"><span class="step-circle">5</span> Checking reference ranges</div>
+        <div class="processing-step" id="pstep-6"><span class="step-circle">6</span> Looking for inconsistencies</div>
+        <div class="processing-step" id="pstep-7"><span class="step-circle">7</span> Identifying missing information</div>
+        <div class="processing-step" id="pstep-8"><span class="step-circle">8</span> Building structured record</div>
+        <div class="processing-step" id="pstep-9"><span class="step-circle">9</span> Preparing summary</div>
+      </div>
+
+      <div style="background-color: var(--sage-pale); border-radius: 999px; height: 6px; overflow: hidden; margin-top: 16px;">
+        <div id="processing-progress-bar" style="width: 10%; height: 100%; background-color: var(--sidebar-green); transition: width 0.3s ease;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
